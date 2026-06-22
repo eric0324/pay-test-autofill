@@ -7,6 +7,9 @@
 //   Amex（15 碼）：     #CCpart1AE #CCpart2AE #CCpart3AE（4-6-5）
 //   到期：#creditMM #creditYY   安全碼：#CreditBackThree
 import { fillInput, waitForField } from '../content/filler.js';
+import { noFieldResult, fillFailedResult, filledResult } from './result.js';
+
+const LABEL = '綠界 ECPay';
 
 function fillById(root, id, value) {
   const el = root.getElementById(id);
@@ -18,7 +21,7 @@ function fillById(root, id, value) {
 export const ecpayAdapter = {
   id: 'ecpay',
   gateway: 'ecpay',
-  label: '綠界 ECPay',
+  label: LABEL,
   detect: (win) => /(^|\.)ecpay\.com\.tw$/.test(win.location.hostname),
 
   async fill(card, ctx) {
@@ -30,7 +33,7 @@ export const ecpayAdapter = {
     // 等卡號第一段出現（剛進刷卡頁時 Vue 欄位可能尚未渲染）。
     const part1 = await waitForField(root, ['#CCpart1', '#CCpart1AE'], 4000);
     if (!part1) {
-      return { ok: false, message: '未在此頁偵測到綠界卡號欄位，請確認已進入信用卡輸入頁' };
+      return noFieldResult(LABEL);
     }
 
     const segments =
@@ -43,11 +46,8 @@ export const ecpayAdapter = {
     const cvcOk = fillById(root, 'CreditBackThree', card.cvc);
 
     if (numFilled === 0) {
-      return { ok: false, message: '找到綠界刷卡頁但卡號欄位填入失敗（頁面可能改版）' };
+      return fillFailedResult(LABEL);
     }
-    return {
-      ok: true,
-      message: `已填入綠界測試卡（卡號${expOk ? '、到期' : '（到期欄未找到）'}${cvcOk ? '、CVC' : '（CVC 欄未找到）'}）`,
-    };
+    return filledResult(LABEL, { expOk, cvcOk });
   },
 };

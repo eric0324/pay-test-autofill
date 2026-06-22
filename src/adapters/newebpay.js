@@ -6,6 +6,9 @@
 //   有效月年：單一 MM/YY 合併欄（maxlength=5、placeholder="MM ／ YY"，無 id/name）→ 靠 placeholder 鎖定
 //   背面末三碼：type="password"、maxlength=3（無 id/name）
 import { fillInput, findField, waitForField } from '../content/filler.js';
+import { noFieldResult, fillFailedResult, filledResult } from './result.js';
+
+const LABEL = '藍新 NewebPay';
 
 function fillById(root, id, value) {
   const el = root.getElementById(id);
@@ -17,7 +20,7 @@ function fillById(root, id, value) {
 export const newebpayAdapter = {
   id: 'newebpay',
   gateway: 'newebpay',
-  label: '藍新 NewebPay',
+  label: LABEL,
   detect: (win) => /(^|\.)newebpay\.com$/.test(win.location.hostname),
 
   async fill(card, ctx) {
@@ -28,7 +31,7 @@ export const newebpayAdapter = {
 
     const card1 = await waitForField(root, ['#card1'], 4000);
     if (!card1) {
-      return { ok: false, message: '未在此頁偵測到藍新卡號欄位，請確認已進入信用卡輸入頁' };
+      return noFieldResult(LABEL);
     }
 
     const segments = [
@@ -50,11 +53,8 @@ export const newebpayAdapter = {
     const cvcOk = !!cvcEl && (fillInput(cvcEl, card.cvc), true);
 
     if (numFilled === 0) {
-      return { ok: false, message: '找到藍新刷卡頁但卡號欄位填入失敗（頁面可能改版）' };
+      return fillFailedResult(LABEL);
     }
-    return {
-      ok: true,
-      message: `已填入藍新測試卡（卡號${expOk ? '、到期' : '（到期欄未找到）'}${cvcOk ? '、CVC' : '（CVC 欄未找到）'}）`,
-    };
+    return filledResult(LABEL, { expOk, cvcOk });
   },
 };

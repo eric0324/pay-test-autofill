@@ -118,12 +118,9 @@ export const stripeAdapter = {
       win.setTimeout(() => {
         win.removeEventListener('message', onMsg);
         if (okCount > 0) {
-          resolve({ ok: true, message: `已填入 Stripe 欄位（${okCount} 個 frame 回應）` });
+          resolve({ ok: true, messageKey: 'status_stripe_filled', params: [String(okCount)] });
         } else {
-          resolve({
-            ok: false,
-            message: '未收到 Stripe 欄位回應，請確認此頁是否使用 Stripe Elements',
-          });
+          resolve({ ok: false, messageKey: 'status_stripe_no_ack' });
         }
       }, 900);
     });

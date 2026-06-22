@@ -1,6 +1,6 @@
 // 由單一份 src/ 經 Bun.build 打包，產出 dist/chrome 與 dist/firefox 兩份 MV3 外掛。
 // 以 bun 執行：bun build.mjs（或 bun run build）。
-import { mkdir, rm, readdir } from 'node:fs/promises';
+import { mkdir, rm, readdir, cp } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,6 +18,13 @@ async function copyIcons(outDir) {
   for (const f of await readdir(iconsDir)) {
     await Bun.write(join(outDir, 'icons', f), Bun.file(join(iconsDir, f)));
   }
+}
+
+// i18n 訊息檔（_locales/<locale>/messages.json）為靜態資源，原樣複製到 dist。
+async function copyLocales(outDir) {
+  const localesDir = join(root, '_locales');
+  if (!existsSync(localesDir)) return;
+  await cp(localesDir, join(outDir, '_locales'), { recursive: true });
 }
 
 async function run() {
@@ -42,6 +49,7 @@ async function run() {
     await Bun.write(join(outDir, 'content.js'), code);
     await Bun.write(join(outDir, 'manifest.json'), Bun.file(join(root, t.manifest)));
     await copyIcons(outDir);
+    await copyLocales(outDir);
     console.log(`✓ built dist/${t.name}`);
   }
 }

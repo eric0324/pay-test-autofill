@@ -1,5 +1,7 @@
 // 注入頁面的浮動面板（Shadow DOM 隔離樣式）。
 // 依 category 分組列出當前金流測試卡，點一下呼叫 adapter.fill 並顯示狀態回饋。
+// 所有顯示文字經 i18n 的 t() 取用；adapter 回傳的 { messageKey, params, missingFields } 在此在地化。
+import { t } from './i18n.js';
 
 const STYLE = `
   :host { all: initial; }
@@ -41,7 +43,16 @@ const STYLE = `
 `;
 
 function groupLabel(category) {
-  return category === 'success' ? '✅ 可用卡' : '⚠️ 錯誤情境';
+  return t(category === 'success' ? 'ui_group_success' : 'ui_group_failure');
+}
+
+/** 將 adapter 回傳的結果碼在地化；部分填入時以 field_* + list_separator 組出缺漏清單。 */
+function resolveStatus(res) {
+  const params = res.params ? [...res.params] : [];
+  if (res.missingFields?.length) {
+    params.push(res.missingFields.map((f) => t(`field_${f}`)).join(t('list_separator')));
+  }
+  return t(res.messageKey, params);
 }
 
 function maskNumber(num) {
@@ -71,7 +82,7 @@ export function mountPanel({ adapter, cards, ctx }) {
 
   const header = document.createElement('div');
   header.className = 'header';
-  header.innerHTML = `<span>💳 ${adapter.label} 測試卡</span><span class="toggle">收合 ▾</span>`;
+  header.innerHTML = `<span>${t('ui_panel_title', [adapter.label])}</span><span class="toggle">${t('ui_toggle_collapse')}</span>`;
 
   const body = document.createElement('div');
   body.className = 'body';
@@ -86,7 +97,7 @@ export function mountPanel({ adapter, cards, ctx }) {
   if (cards.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'empty';
-    empty.textContent = '尚無內建測試卡，請參考 README 補充此金流的測試卡資料。';
+    empty.textContent = t('ui_empty');
     body.appendChild(empty);
   }
 
@@ -99,20 +110,20 @@ export function mountPanel({ adapter, cards, ctx }) {
     for (const card of list) {
       const btn = document.createElement('button');
       btn.className = `card ${category}`;
-      btn.title = card.note || '';
+      btn.title = card.note ? t(card.note) : '';
       btn.innerHTML =
-        `<div class="label">${card.label}</div>` +
+        `<div class="label">${t(card.label)}</div>` +
         `<div class="num">${maskNumber(card.number)}</div>`;
       btn.addEventListener('click', async () => {
         status.className = 'status';
-        status.textContent = '填入中…';
+        status.textContent = t('ui_status_filling');
         try {
           const res = await adapter.fill(card, ctx);
           status.className = `status ${res.ok ? 'ok' : 'err'}`;
-          status.textContent = res.message;
+          status.textContent = resolveStatus(res);
         } catch (err) {
           status.className = 'status err';
-          status.textContent = `填入發生錯誤：${err?.message || err}`;
+          status.textContent = t('ui_error_prefix', [err?.message || String(err)]);
         }
       });
       body.appendChild(btn);
@@ -124,7 +135,7 @@ export function mountPanel({ adapter, cards, ctx }) {
 
   header.addEventListener('click', () => {
     const collapsed = panel.classList.toggle('collapsed');
-    header.querySelector('.toggle').textContent = collapsed ? '展開 ▸' : '收合 ▾';
+    header.querySelector('.toggle').textContent = collapsed ? t('ui_toggle_expand') : t('ui_toggle_collapse');
   });
 
   panel.appendChild(header);

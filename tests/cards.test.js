@@ -22,6 +22,15 @@ describe('測試卡資料完整性', () => {
     }
   });
 
+  it('label 與 note 為 i18n 訊息鍵（card_ 前綴、僅小寫英數底線）', () => {
+    for (const list of Object.values(CARDS)) {
+      for (const card of list) {
+        expect(card.label).toMatch(/^card_[a-z0-9_]+_label$/);
+        expect(card.note).toMatch(/^card_[a-z0-9_]+_note$/);
+      }
+    }
+  });
+
   it('卡號為純數字字串', () => {
     for (const list of Object.values(CARDS)) {
       for (const card of list) {

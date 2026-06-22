@@ -56,6 +56,8 @@ describe('DOM adapter 填入', () => {
     const card = { number: '4311952222222222', cvc: '222', expMonth: '12', expYear: '2030' };
     const res = await ecpayAdapter.fill(card, { window, document });
     expect(res.ok).toBe(true);
+    expect(res.messageKey).toBe('status_filled');
+    expect(res.params).toContain('綠界 ECPay');
     expect(document.querySelector('#CCpart1').value).toBe('4311');
     expect(document.querySelector('#CCpart2').value).toBe('9522');
     expect(document.querySelector('#CCpart3').value).toBe('2222');
@@ -73,6 +75,7 @@ describe('DOM adapter 填入', () => {
     const card = { number: '378282246310005', cvc: '1234', expMonth: '12', expYear: '2030' };
     const res = await ecpayAdapter.fill(card, { window, document });
     expect(res.ok).toBe(true);
+    expect(res.messageKey).toBe('status_filled');
     expect(document.querySelector('#CCpart1AE').value).toBe('3782');
     expect(document.querySelector('#CCpart2AE').value).toBe('822463');
     expect(document.querySelector('#CCpart3AE').value).toBe('10005');
@@ -89,6 +92,8 @@ describe('DOM adapter 填入', () => {
     const card = { number: '4000221111111111', cvc: '123', expMonth: '12', expYear: '2030' };
     const res = await newebpayAdapter.fill(card, { window, document });
     expect(res.ok).toBe(true);
+    expect(res.messageKey).toBe('status_filled');
+    expect(res.params).toContain('藍新 NewebPay');
     expect(document.querySelector('#card1').value).toBe('4000');
     expect(document.querySelector('#card2').value).toBe('2211');
     expect(document.querySelector('#card3').value).toBe('1111');
@@ -102,6 +107,7 @@ describe('DOM adapter 填入', () => {
     const card = { number: '1', cvc: '2', expMonth: '12', expYear: '2030' };
     const res = await ecpayAdapter.fill(card, { window, document });
     expect(res.ok).toBe(false);
-    expect(res.message).toContain('未在此頁偵測到');
+    expect(res.messageKey).toBe('status_no_field');
+    expect(res.params).toContain('綠界 ECPay');
   });
 });
