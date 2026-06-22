@@ -44,29 +44,57 @@ describe('adapter 偵測', () => {
 });
 
 describe('DOM adapter 填入', () => {
-  it('綠界 adapter 填入卡號/CVC/到期欄位', async () => {
+  it('綠界 adapter 填入 4 段卡號/到期/CVC（實際刷卡頁結構）', async () => {
+    // 綠界 Vue 刷卡頁：卡號 4 段 #CCpart1-4、到期 #creditMM/#creditYY、安全碼 #CreditBackThree。
     document.body.innerHTML = `
-      <input name="CardNo" />
-      <input name="CardCVC" />
-      <select name="ExpireMonth">
-        <option value="01">01</option><option value="12">12</option>
-      </select>
-      <select name="ExpireYear">
-        <option value="2030">2030</option>
-      </select>
+      <input name="CardNo" type="hidden" />
+      <input id="CCpart1" type="tel" /><input id="CCpart2" type="tel" />
+      <input id="CCpart3" type="tel" /><input id="CCpart4" type="tel" />
+      <input id="creditMM" type="tel" /><input id="creditYY" type="tel" />
+      <input id="CreditBackThree" type="tel" />
     `;
-    const card = {
-      number: '4311952222222222',
-      cvc: '222',
-      expMonth: '12',
-      expYear: '2030',
-    };
+    const card = { number: '4311952222222222', cvc: '222', expMonth: '12', expYear: '2030' };
     const res = await ecpayAdapter.fill(card, { window, document });
     expect(res.ok).toBe(true);
-    expect(document.querySelector('[name="CardNo"]').value).toBe('4311952222222222');
-    expect(document.querySelector('[name="CardCVC"]').value).toBe('222');
-    expect(document.querySelector('[name="ExpireMonth"]').value).toBe('12');
-    expect(document.querySelector('[name="ExpireYear"]').value).toBe('2030');
+    expect(document.querySelector('#CCpart1').value).toBe('4311');
+    expect(document.querySelector('#CCpart2').value).toBe('9522');
+    expect(document.querySelector('#CCpart3').value).toBe('2222');
+    expect(document.querySelector('#CCpart4').value).toBe('2222');
+    expect(document.querySelector('#creditMM').value).toBe('12');
+    expect(document.querySelector('#creditYY').value).toBe('30');
+    expect(document.querySelector('#CreditBackThree').value).toBe('222');
+  });
+
+  it('綠界 Amex 15 碼走 AE 欄位（4-6-5）', async () => {
+    document.body.innerHTML = `
+      <input id="CCpart1AE" type="tel" /><input id="CCpart2AE" type="tel" /><input id="CCpart3AE" type="tel" />
+      <input id="creditMM" type="tel" /><input id="creditYY" type="tel" /><input id="CreditBackThree" type="tel" />
+    `;
+    const card = { number: '378282246310005', cvc: '1234', expMonth: '12', expYear: '2030' };
+    const res = await ecpayAdapter.fill(card, { window, document });
+    expect(res.ok).toBe(true);
+    expect(document.querySelector('#CCpart1AE').value).toBe('3782');
+    expect(document.querySelector('#CCpart2AE').value).toBe('822463');
+    expect(document.querySelector('#CCpart3AE').value).toBe('10005');
+  });
+
+  it('藍新 adapter 填入 4 段卡號/合併到期/password CVC（實際刷卡頁結構）', async () => {
+    document.body.innerHTML = `
+      <input class="hidden" maxlength="19" />
+      <input id="card1" type="tel" maxlength="4" /><input id="card2" type="tel" maxlength="4" />
+      <input id="card3" type="tel" maxlength="4" /><input id="card4" type="tel" maxlength="4" />
+      <input placeholder="MM ／ YY" maxlength="5" />
+      <input type="password" maxlength="3" />
+    `;
+    const card = { number: '4000221111111111', cvc: '123', expMonth: '12', expYear: '2030' };
+    const res = await newebpayAdapter.fill(card, { window, document });
+    expect(res.ok).toBe(true);
+    expect(document.querySelector('#card1').value).toBe('4000');
+    expect(document.querySelector('#card2').value).toBe('2211');
+    expect(document.querySelector('#card3').value).toBe('1111');
+    expect(document.querySelector('#card4').value).toBe('1111');
+    expect(document.querySelector('input[maxlength="5"]').value).toBe('12/30');
+    expect(document.querySelector('input[type="password"]').value).toBe('123');
   });
 
   it('找不到卡號欄位時回報失敗', async () => {

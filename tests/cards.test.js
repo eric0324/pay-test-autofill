@@ -30,9 +30,8 @@ describe('測試卡資料完整性', () => {
     }
   });
 
-  it('有內建卡的金流至少有一張成功卡', () => {
+  it('每家金流至少有一張成功卡', () => {
     for (const [gw, list] of Object.entries(CARDS)) {
-      if (list.length === 0) continue; // app91 待補，允許空
       const hasSuccess = list.some((c) => c.category === 'success');
       expect(hasSuccess, `${gw} 沒有成功卡`).toBe(true);
     }
