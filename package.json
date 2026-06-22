@@ -6,6 +6,8 @@
   "private": true,
   "scripts": {
     "build": "bun build.mjs",
+    "package:firefox": "bun run build && bunx web-ext build --source-dir dist/firefox --artifacts-dir dist --overwrite-dest",
+    "lint:firefox": "bun run build && bunx web-ext lint --source-dir dist/firefox",
     "demo": "bun demo/server.mjs",
     "test": "bun test",
     "test:watch": "bun test --watch"

@@ -82,7 +82,12 @@ export function mountPanel({ adapter, cards, ctx }) {
 
   const header = document.createElement('div');
   header.className = 'header';
-  header.innerHTML = `<span>${t('ui_panel_title', [adapter.label])}</span><span class="toggle">${t('ui_toggle_collapse')}</span>`;
+  const titleSpan = document.createElement('span');
+  titleSpan.textContent = t('ui_panel_title', [adapter.label]);
+  const toggleSpan = document.createElement('span');
+  toggleSpan.className = 'toggle';
+  toggleSpan.textContent = t('ui_toggle_collapse');
+  header.append(titleSpan, toggleSpan);
 
   const body = document.createElement('div');
   body.className = 'body';
@@ -111,9 +116,13 @@ export function mountPanel({ adapter, cards, ctx }) {
       const btn = document.createElement('button');
       btn.className = `card ${category}`;
       btn.title = card.note ? t(card.note) : '';
-      btn.innerHTML =
-        `<div class="label">${t(card.label)}</div>` +
-        `<div class="num">${maskNumber(card.number)}</div>`;
+      const labelDiv = document.createElement('div');
+      labelDiv.className = 'label';
+      labelDiv.textContent = t(card.label);
+      const numDiv = document.createElement('div');
+      numDiv.className = 'num';
+      numDiv.textContent = maskNumber(card.number);
+      btn.append(labelDiv, numDiv);
       btn.addEventListener('click', async () => {
         status.className = 'status';
         status.textContent = t('ui_status_filling');
