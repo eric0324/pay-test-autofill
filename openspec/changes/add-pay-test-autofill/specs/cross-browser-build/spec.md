@@ -1,10 +1,10 @@
 ## ADDED Requirements
 
 ### Requirement: 單一原始碼產出雙瀏覽器外掛
-建構流程 SHALL 由單一份 `src/` 原始碼，經 esbuild 打包，產出 `dist/chrome/` 與 `dist/firefox/` 兩份可載入的外掛。執行 `npm run build` MUST 同時產生兩個版本。
+建構流程 SHALL 由單一份 `src/` 原始碼，經 `Bun.build` 打包，產出 `dist/chrome/` 與 `dist/firefox/` 兩份可載入的外掛。執行 `bun run build` MUST 同時產生兩個版本。
 
 #### Scenario: 一次建構產出兩版
-- **WHEN** 開發者執行 `npm run build`
+- **WHEN** 開發者執行 `bun run build`
 - **THEN** 系統 MUST 在 `dist/chrome/` 與 `dist/firefox/` 各產出含 manifest 與打包後 content script 的完整外掛
 
 #### Scenario: content script 打包為單檔

@@ -19,11 +19,11 @@
 
 ## 安裝（載入未封裝外掛）
 
-先建構：
+先建構（需 [Bun](https://bun.sh)）：
 
 ```bash
-npm install
-npm run build
+bun install
+bun run build
 ```
 
 會產出 `dist/chrome/` 與 `dist/firefox/` 兩份。
@@ -49,10 +49,13 @@ npm run build
 ## 開發
 
 ```bash
-npm run build       # 產出 dist/chrome 與 dist/firefox
-npm test            # 單元測試（vitest + jsdom）
-npm run test:watch  # 監看模式
+bun run build       # 產出 dist/chrome 與 dist/firefox（Bun.build）
+bun test            # 單元測試（bun test + happy-dom）
+bun run test:watch  # 監看模式
+bun run harness     # 啟動本機模擬測試頁（http://localhost:5179/dev/harness.html）
 ```
+
+`bun run harness` 會起一個本機伺服器，提供 `dev/harness.html`：四家金流的模擬刷卡頁，繞過網域偵測直接掛載對應 adapter 的面板，方便在無測試帳號時驗證面板渲染與填值核心。
 
 ### 專案結構
 
@@ -68,7 +71,7 @@ src/
     ecpay.js / newebpay.js / app91.js / stripe.js
 manifest.chrome.json     # Chrome MV3
 manifest.firefox.json    # Firefox MV3（含 gecko id）
-build.mjs                # esbuild 打包 → dist/{chrome,firefox}
+build.mjs                # Bun.build 打包 → dist/{chrome,firefox}
 ```
 
 ### 維護 selector

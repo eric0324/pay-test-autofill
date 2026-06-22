@@ -1,11 +1,11 @@
 ## 1. 專案骨架與建構
 
-- [x] 1.1 建立 `package.json`（dev 相依：esbuild、測試框架 vitest），與 `.gitignore`（忽略 `dist/`、`node_modules/`）
+- [x] 1.1 建立 `package.json`（開發工具採 Bun：內建打包 `Bun.build`、測試 `bun test`；dev 相依僅 `@happy-dom/global-registrator`），與 `.gitignore`（忽略 `dist/`、`node_modules/`）
 - [x] 1.2 建立 `src/` 目錄結構（data/、adapters/、content/）與空骨架檔
 - [x] 1.3 撰寫 `manifest.chrome.json`（MV3、content_scripts matches 四金流測試網域、Stripe 相關 frame `all_frames: true`）
 - [x] 1.4 撰寫 `manifest.firefox.json`（同上 + `browser_specific_settings.gecko.id`）
-- [x] 1.5 撰寫 `build.mjs`：esbuild bundle `src/content/index.js` → 複製產物與對應 manifest 到 `dist/chrome/`、`dist/firefox/`；加上 `npm run build` script
-- [x] 1.6 驗證 `npm run build` 兩版皆產出，並可於 Chrome／Firefox 載入未封裝外掛（空面板亦可）
+- [x] 1.5 撰寫 `build.mjs`：`Bun.build` bundle `src/content/index.js` → 複製產物與對應 manifest 到 `dist/chrome/`、`dist/firefox/`；加上 `bun run build` script
+- [x] 1.6 驗證 `bun run build` 兩版皆產出，並可於 Chrome／Firefox 載入未封裝外掛（空面板亦可）
 
 ## 2. 測試卡資料庫（test-card-data）
 
@@ -26,7 +26,7 @@
 - [x] 3.6 實作 `adapters/app91.js`（detect/selectors/fill；selector 依實機確認）
 - [x] 3.7 實作 `adapters/stripe.js`：主 frame 廣播 + iframe frame 內 `insertText` 填入，`window.postMessage` 跨 frame 協調
 - [x] 3.8 實作欄位等待（`MutationObserver`）與偵測失敗回報狀態
-- [x] 3.9 撰寫 adapter 純函式單元測試（selector 設定、detect 邏輯，可用 jsdom）
+- [x] 3.9 撰寫 adapter 純函式單元測試（selector 設定、detect 邏輯，可用 happy-dom）
 
 ## 4. 浮動面板 UI（autofill-ui）
 

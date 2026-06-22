@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'bun:test';
 import { pickAdapter } from '../src/adapters/index.js';
 import { ecpayAdapter } from '../src/adapters/ecpay.js';
 import { newebpayAdapter } from '../src/adapters/newebpay.js';
