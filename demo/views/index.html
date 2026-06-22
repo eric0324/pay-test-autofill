@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pay Test Autofill — 金流測試 demo 商家</title>
+  <style>
+    body { font-family: -apple-system, "Microsoft JhengHei", sans-serif; background: #eef2f7;
+           color: #1f2933; margin: 0; }
+    header { background: #1f2933; color: #fff; padding: 16px 24px; }
+    header h1 { font-size: 17px; margin: 0; }
+    header p { font-size: 12.5px; margin: 6px 0 0; color: #9aa5b1; line-height: 1.5; }
+    .wrap { max-width: 680px; margin: 24px auto; padding: 0 24px; }
+    .card { background: #fff; border: 1px solid #d2d6dc; border-radius: 12px; padding: 18px 20px;
+            margin-bottom: 14px; }
+    .card h2 { font-size: 15px; margin: 0 0 6px; }
+    .card p { font-size: 13px; color: #52606d; margin: 0 0 12px; line-height: 1.5; }
+    .card .tag { font-size: 11px; padding: 2px 7px; border-radius: 10px; margin-left: 8px;
+                 vertical-align: middle; }
+    .ready { background: #ebfbee; color: #2b8a3e; }
+    .needkey { background: #fff4e6; color: #d9480f; }
+    a.go { display: inline-block; background: #1f2933; color: #fff; text-decoration: none;
+           padding: 8px 16px; border-radius: 8px; font-size: 13px; }
+    a.go.disabled { background: #cbd2d9; pointer-events: none; }
+    code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛒 Pay Test Autofill — demo 商家</h1>
+    <p>每個按鈕會把你導向「該金流真實的測試刷卡頁」。先在瀏覽器載入本外掛（dist/chrome 或 dist/firefox），
+       到刷卡頁後右下角應出現填卡面板。各家是否就緒取決於 <code>.env</code> 的憑證。</p>
+  </header>
+  <div class="wrap" id="list"></div>
+
+  <script>
+    fetch('/config.json').then((r) => r.json()).then((cfg) => {
+      const items = [
+        { key: 'ecpay', name: '綠界 ECPay', ready: cfg.ecpayReady,
+          desc: '官方公開測試商店，導向 payment-stage.ecpay.com.tw 信用卡頁。測試卡 4311-9522-2222-2222 / CVC 222。' },
+        { key: 'stripe', name: 'Stripe', ready: cfg.stripeReady,
+          desc: 'Card Element 分離欄位（真實 js.stripe.com iframe）。需 .env 的 STRIPE_PUBLISHABLE_KEY。測試卡 4242 4242 4242 4242。' },
+        { key: 'newebpay', name: '藍新 NewebPay', ready: cfg.newebpayReady,
+          desc: '導向 ccore.newebpay.com 信用卡頁。需自行申請測試商店並填入 .env。測試卡 4000-2211-1111-1111。' },
+      ];
+      document.getElementById('list').innerHTML = items.map((it) => `
+        <div class="card">
+          <h2>${it.name}<span class="tag ${it.ready ? 'ready' : 'needkey'}">${it.ready ? '可測試' : '需設定 .env'}</span></h2>
+          <p>${it.desc}</p>
+          <a class="go ${it.ready ? '' : 'disabled'}" href="/${it.key}">前往刷卡頁 →</a>
+        </div>`).join('');
+    });
+  </script>
+</body>
+</html>

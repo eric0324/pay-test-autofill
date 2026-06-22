@@ -2,7 +2,7 @@
 
 開發者金流測試輔助外掛。在受支援的金流測試頁面注入一個浮動面板，點一下即自動填入測試卡號／到期日／CVC，省去查文件與手打的成本。支援 **Chrome** 與 **Firefox**（Manifest V3）。
 
-支援金流：**綠界 ECPay**、**藍新 NewebPay**、**91APP**、**Stripe**。
+支援金流：**綠界 ECPay**、**藍新 NewebPay**、**Stripe**。
 
 ---
 
@@ -52,10 +52,10 @@ bun run build
 bun run build       # 產出 dist/chrome 與 dist/firefox（Bun.build）
 bun test            # 單元測試（bun test + happy-dom）
 bun run test:watch  # 監看模式
-bun run harness     # 啟動本機模擬測試頁（http://localhost:5179/dev/harness.html）
+bun run demo        # 啟動 demo 商家後端（串接各金流測試環境，導向真實刷卡頁）
 ```
 
-`bun run harness` 會起一個本機伺服器，提供 `dev/harness.html`：四家金流的模擬刷卡頁，繞過網域偵測直接掛載對應 adapter 的面板，方便在無測試帳號時驗證面板渲染與填值核心。
+`bun run demo` 會起一個 demo 商家伺服器（預設 <http://localhost:3000>），每家金流一條路由，實際串接其測試環境並把你導向**真實的測試刷卡頁**，用來在真實網域／iframe 上驗證外掛填入。憑證放在 gitignored 的 `.env`（見 [`demo/README.md`](demo/README.md) 與 `.env.example`）。
 
 ### 專案結構
 
@@ -68,7 +68,7 @@ src/
   adapters/
     common.js            # DOM 型 adapter 工廠
     selectors.js         # 通用欄位選擇器候選
-    ecpay.js / newebpay.js / app91.js / stripe.js
+    ecpay.js / newebpay.js / stripe.js
 manifest.chrome.json     # Chrome MV3
 manifest.firefox.json    # Firefox MV3（含 gecko id）
 build.mjs                # Bun.build 打包 → dist/{chrome,firefox}
@@ -84,16 +84,14 @@ build.mjs                # Bun.build 打包 → dist/{chrome,firefox}
 
 | 金流 | 來源 | 備註 |
 |------|------|------|
-| 綠界 ECPay | [ECPay Developers 測試介接資訊](https://developers.ecpay.com.tw/?p=2856) | 成功卡 `4311-9522-2222-2222`／CVC `222`。測試環境失敗情境由測試特店後台模擬，官方未以卡號區分，故僅收成功卡。 |
+| 綠界 ECPay | [ECPay Developers 測試介接資訊](https://developers.ecpay.com.tw/?p=2856) | 成功卡 `4311-9522-2222-2222`／CVC 任意三碼。綠界無失敗卡號；失敗情境用同一張卡填「過期到期日」觸發（官方唯一明文做法），故收一張成功卡＋一張過期失敗卡。 |
 | 藍新 NewebPay | 藍新測試後台 `ccore.newebpay.com` | 成功卡 `4000-2211-1111-1111`（一次付清）、`4003-5511-1111-1111`（紅利）。文件明示非測試卡號一律失敗，故含一張模擬失敗卡。 |
-| 91APP | 需向 91APP 申請測試金鑰／測試商店 | **待補**：自有刷卡頁的測試卡號與欄位無公開文件，未取得前不杜撰（見下方限制）。 |
 | Stripe | [Stripe 官方測試卡](https://docs.stripe.com/testing) | 完整成功／3DS／各種拒絕情境。 |
 
 ---
 
 ## 已知限制
 
-- **91APP**：自有金流（91APP Payments）的測試卡號與刷卡頁結構需向 91APP 申請測試環境後才取得，目前資料庫保留空清單（不杜撰）。其金鑰命名（Publishable Key／Shared Secret）近似 Stripe，若其刷卡頁實為 **Stripe Elements**，`stripe` adapter 會自動接手填入。取得官方資訊後補上 `src/data/cards.js` 的 `app91` 與 `src/adapters/app91.js` 的 selector。
 - **Stripe 等 iframe 金流**：卡號欄位在跨網域 iframe，填入透過 `all_frames` 注入 + `postMessage` 協調，屬「盡力而為」，需實機驗證；若 Stripe 內部攔截導致未生效，後續可改用逐字鍵盤事件備援。
 - **欄位 selector**：高度依賴各家測試頁 DOM，頁面改版可能需更新對應 adapter。
 
@@ -101,4 +99,4 @@ build.mjs                # Bun.build 打包 → dist/{chrome,firefox}
 
 ## 待人工實機驗收
 
-下列需在真實測試頁驗證並回填（見 `openspec/changes/add-pay-test-autofill/tasks.md` 第 5 組）：綠界、藍新、91APP、Stripe 各自的偵測、面板顯示與成功／失敗卡填入。
+下列需在真實測試頁驗證並回填（見 `openspec/changes/add-pay-test-autofill/tasks.md` 第 5 組）：綠界、藍新、Stripe 各自的偵測、面板顯示與成功／失敗卡填入。
