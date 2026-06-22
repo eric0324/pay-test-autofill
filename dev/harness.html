@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pay Test Autofill — 本機模擬測試頁</title>
+  <style>
+    body { font-family: -apple-system, "Microsoft JhengHei", sans-serif; margin: 0;
+           background: #eef2f7; color: #1f2933; }
+    header { background: #1f2933; color: #fff; padding: 14px 20px; }
+    header h1 { font-size: 16px; margin: 0; }
+    header p { font-size: 12px; margin: 4px 0 0; color: #9aa5b1; }
+    .wrap { max-width: 720px; margin: 20px auto; padding: 0 20px; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .tabs button { padding: 8px 14px; border: 1px solid #cbd2d9; background: #fff; border-radius: 8px;
+                   cursor: pointer; font-size: 13px; }
+    .tabs button.active { background: #1f2933; color: #fff; border-color: #1f2933; }
+    .card-box { background: #fff; border: 1px solid #d2d6dc; border-radius: 12px; padding: 20px; }
+    .card-box h2 { font-size: 14px; margin: 0 0 4px; }
+    .card-box .desc { font-size: 12px; color: #616e7c; margin: 0 0 16px; line-height: 1.5; }
+    form label { display: block; margin: 10px 0; font-size: 13px; }
+    form label > span { display: block; color: #52606d; margin-bottom: 4px; font-size: 12px; }
+    form input, form select { width: 100%; box-sizing: border-box; padding: 9px; font-size: 14px;
+                              border: 1px solid #cbd2d9; border-radius: 6px; }
+    iframe { width: 100%; height: 230px; border: 1px dashed #cbd2d9; border-radius: 8px; }
+    .tip { font-size: 12px; color: #9aa5b1; margin-top: 14px; line-height: 1.6; }
+    .tip code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>💳 Pay Test Autofill — 本機模擬測試頁</h1>
+    <p>繞過網域偵測，直接掛載對應 adapter 的面板。右下角面板點卡 → 觀察下方表單是否被填入。</p>
+  </header>
+
+  <div class="wrap">
+    <div class="tabs" id="tabs"></div>
+    <div class="card-box" id="mock"></div>
+    <div class="tip" id="tip"></div>
+  </div>
+
+  <script type="module">
+    import { ecpayAdapter } from '../src/adapters/ecpay.js';
+    import { newebpayAdapter } from '../src/adapters/newebpay.js';
+    import { app91Adapter } from '../src/adapters/app91.js';
+    import { stripeAdapter } from '../src/adapters/stripe.js';
+    import { CARDS } from '../src/data/cards.js';
+    import { mountPanel } from '../src/content/panel.js';
+
+    const monthOpts = ['<option value="">月</option>']
+      .concat(Array.from({ length: 12 }, (_, i) => {
+        const m = String(i + 1).padStart(2, '0');
+        return `<option value="${m}">${m}</option>`;
+      })).join('');
+    const yearOpts = ['<option value="">年</option>']
+      .concat(Array.from({ length: 8 }, (_, i) => {
+        const y = String(2025 + i);
+        return `<option value="${y}">${y}</option>`;
+      })).join('');
+
+    // 各金流的模擬表單：欄位 name/屬性刻意對齊對應 adapter 的 selector。
+    const GATEWAYS = {
+      ecpay: {
+        adapter: ecpayAdapter,
+        title: '綠界 ECPay 模擬刷卡頁',
+        desc: '欄位採綠界已知 selector：CardNo / CardCVC + 月年下拉（ExpireMonth / ExpireYear）。對應 tasks 5.1。',
+        form: `<form>
+          <label><span>信用卡卡號</span><input name="CardNo" autocomplete="off" placeholder="卡號"></label>
+          <label><span>到期月</span><select name="ExpireMonth">${monthOpts}</select></label>
+          <label><span>到期年</span><select name="ExpireYear">${yearOpts}</select></label>
+          <label><span>背面末三碼</span><input name="CardCVC" placeholder="安全碼"></label>
+        </form>`,
+      },
+      newebpay: {
+        adapter: newebpayAdapter,
+        title: '藍新 NewebPay 模擬刷卡頁',
+        desc: '欄位 name 含 CardNo / CVC 與 Month / Year 下拉，對齊藍新 adapter 的模糊比對。對應 tasks 5.2。',
+        form: `<form>
+          <label><span>信用卡卡號</span><input name="CardNo" placeholder="卡號"></label>
+          <label><span>到期月</span><select name="ExpireMonth">${monthOpts}</select></label>
+          <label><span>到期年</span><select name="ExpireYear">${yearOpts}</select></label>
+          <label><span>安全碼</span><input name="CardCVC" placeholder="背面三碼"></label>
+        </form>`,
+      },
+      app91: {
+        adapter: app91Adapter,
+        title: '91APP 模擬刷卡頁（通用候選 selector）',
+        desc: '91APP 自有刷卡頁無公開測試卡，資料庫保留空清單。此頁僅示範面板「空狀態」與通用 autocomplete 欄位偵測。對應 tasks 5.3。',
+        form: `<form>
+          <label><span>Card number</span><input autocomplete="cc-number" placeholder="卡號"></label>
+          <label><span>Expiry (MM/YY)</span><input autocomplete="cc-exp" placeholder="MM/YY"></label>
+          <label><span>CVC</span><input autocomplete="cc-csc" placeholder="安全碼"></label>
+        </form>`,
+      },
+      stripe: {
+        adapter: stripeAdapter,
+        title: 'Stripe Elements 模擬（跨 frame postMessage）',
+        desc: '卡號欄位置於同源 iframe，模擬 js.stripe.com。點卡會廣播 postMessage(FILL)，iframe 填入後回 ACK。對應 tasks 5.4。',
+        form: `<iframe src="./stripe-frame.html" title="stripe-mock"></iframe>`,
+      },
+    };
+
+    const order = ['ecpay', 'newebpay', 'app91', 'stripe'];
+    const tabsEl = document.getElementById('tabs');
+    const mockEl = document.getElementById('mock');
+    const tipEl = document.getElementById('tip');
+    let current = null;
+
+    function select(key) {
+      current = key;
+      const g = GATEWAYS[key];
+      // 移除舊面板（mountPanel 對重複的 #pta-root 會略過）。
+      document.getElementById('pta-root')?.remove();
+
+      [...tabsEl.children].forEach((b) => b.classList.toggle('active', b.dataset.key === key));
+      mockEl.innerHTML = `<h2>${g.title}</h2><p class="desc">${g.desc}</p>${g.form}`;
+      tipEl.innerHTML = key === 'stripe'
+        ? '提示：填入成功時面板狀態會顯示「已填入 Stripe 欄位（N 個 frame 回應）」，且上方 iframe 三欄會出現值。'
+        : '提示：點右下角面板中的測試卡，這個表單的卡號／到期／CVC 應立即被填入並觸發 <code>input/change</code> 事件。';
+
+      const cards = CARDS[g.adapter.gateway] || [];
+      mountPanel({ adapter: g.adapter, cards, ctx: { window, document } });
+    }
+
+    for (const key of order) {
+      const btn = document.createElement('button');
+      btn.dataset.key = key;
+      btn.textContent = GATEWAYS[key].title.split('（')[0].split(' 模擬')[0];
+      btn.addEventListener('click', () => select(key));
+      tabsEl.appendChild(btn);
+    }
+
+    select('ecpay');
+  </script>
+</body>
+</html>
