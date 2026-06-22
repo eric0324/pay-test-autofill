@@ -1,0 +1,17 @@
+{
+  "name": "pay-test-autofill",
+  "version": "0.1.0",
+  "description": "開發者金流測試卡一鍵自動填入外掛（藍新／綠界／91APP／Stripe），支援 Chrome 與 Firefox。",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0",
+    "jsdom": "^24.0.0",
+    "vitest": "^2.0.0"
+  }
+}
