@@ -7,6 +7,7 @@
   "scripts": {
     "build": "bun build.mjs",
     "package:firefox": "bun run build && bunx web-ext build --source-dir dist/firefox --artifacts-dir dist --overwrite-dest",
+    "package:chrome": "bun run build && bunx web-ext build --source-dir dist/chrome --artifacts-dir dist --overwrite-dest --filename pay-test-autofill-chrome-0.1.0.zip",
     "lint:firefox": "bun run build && bunx web-ext lint --source-dir dist/firefox",
     "demo": "bun demo/server.mjs",
     "test": "bun test",
