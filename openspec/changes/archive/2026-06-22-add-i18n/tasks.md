@@ -30,5 +30,5 @@
 - [x] 6.1 兩份 manifest 加 `default_locale: "zh_TW"`
 - [x] 6.2 `build.mjs` 遞迴複製 `_locales/` 到 `dist/chrome`、`dist/firefox`（比照 `copyIcons`）
 - [x] 6.3 `bun test` 全綠、`bun run build` 兩版產物含 `_locales`
-- [ ] 6.4 實機：分別以中文與英文瀏覽器載入，確認面板與卡片文字在地化、非支援語言回退 zh_TW
+- [x] 6.4 實機：分別以中文與英文瀏覽器載入，確認面板與卡片文字在地化、非支援語言回退 zh_TW
 - [x] 6.5 更新 `README.md`：i18n 機制、支援語言、新增語言與維護 `_locales` 的指引
