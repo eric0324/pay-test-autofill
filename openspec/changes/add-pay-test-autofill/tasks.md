@@ -13,7 +13,6 @@
 - [x] 2.2 查證並填入 Stripe 官方測試卡：成功、3DS、generic decline、insufficient_funds、incorrect_cvc、expired_card、lost/stolen、processing_error 等
 - [x] 2.3 查證並填入綠界 ECPay 官方測試卡（成功卡 + 文件提供之失敗情境）
 - [x] 2.4 查證並填入藍新 NewebPay 官方測試卡（成功卡 + 文件提供之失敗情境）
-- [x] 2.5 建立 91APP 自有刷卡頁測試卡（依官方測試文件／實機；未取得前以待驗證標記，不杜撰）
 - [x] 2.6 撰寫資料完整性單元測試：每家至少一張成功卡、必要欄位齊全、每張卡有 note
 
 ## 3. 填值核心與 adapter 框架（gateway-adapters）
@@ -23,7 +22,6 @@
 - [x] 3.3 定義 adapter 介面與 `adapters/index.js`（`ADAPTERS`、`pickAdapter()` 至多選一）
 - [x] 3.4 實作 `adapters/ecpay.js`（detect/selectors/fill，主頁面 DOM）
 - [x] 3.5 實作 `adapters/newebpay.js`（detect/selectors/fill，主頁面 DOM）
-- [x] 3.6 實作 `adapters/app91.js`（detect/selectors/fill；selector 依實機確認）
 - [x] 3.7 實作 `adapters/stripe.js`：主 frame 廣播 + iframe frame 內 `insertText` 填入，`window.postMessage` 跨 frame 協調
 - [x] 3.8 實作欄位等待（`MutationObserver`）與偵測失敗回報狀態
 - [x] 3.9 撰寫 adapter 純函式單元測試（selector 設定、detect 邏輯，可用 happy-dom）
@@ -40,6 +38,5 @@
 
 - [ ] 5.1 對綠界測試頁實機驗收：偵測、面板、成功卡與失敗卡填入
 - [ ] 5.2 對藍新測試頁實機驗收
-- [ ] 5.3 對 91APP 刷卡頁實機驗收（並回填 2.5／3.6 待確認項）
 - [ ] 5.4 對 Stripe 測試頁實機驗收（iframe 填入、3DS 卡顯示正確情境）
 - [x] 5.5 撰寫 `README.md`：安裝（載入未封裝外掛）、支援金流與情境、selector 維護指引、已知限制（iframe 盡力而為、不自動送出）

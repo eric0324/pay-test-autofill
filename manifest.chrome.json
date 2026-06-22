@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Pay Test Autofill",
   "version": "0.1.0",
-  "description": "金流測試卡一鍵自動填入（藍新／綠界／91APP／Stripe），協助開發者快速測試成功與各種失敗情境。",
+  "description": "金流測試卡一鍵自動填入（藍新／綠界／Stripe），協助開發者快速測試成功與各種失敗情境。",
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

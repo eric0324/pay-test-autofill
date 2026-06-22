@@ -1,4 +1,4 @@
-// 主頁面 DOM 型金流的共用 adapter 工廠（綠界／藍新／91APP）。
+// 主頁面 DOM 型金流的共用 adapter 工廠。
 // Stripe 因欄位在跨網域 iframe，另以 adapters/stripe.js 處理。
 import { fillField, findField, waitForField, fillInput } from '../content/filler.js';
 

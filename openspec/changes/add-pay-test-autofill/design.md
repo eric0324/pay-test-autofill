@@ -1,6 +1,6 @@
 ## Context
 
-開發者串接四家金流（綠界 ECPay、藍新 NewebPay、91APP、Stripe）時需反覆在測試頁手動輸入測試卡。本外掛為純前端 WebExtension（Manifest V3），以 content script 在測試頁注入浮動面板達成一鍵填入。專案為全新建立，無既有程式碼。
+開發者串接三家金流（綠界 ECPay、藍新 NewebPay、Stripe）時需反覆在測試頁手動輸入測試卡。本外掛為純前端 WebExtension（Manifest V3），以 content script 在測試頁注入浮動面板達成一鍵填入。專案為全新建立，無既有程式碼。
 
 關鍵約束：
 - 高度依賴四家金流測試頁的真實 DOM 結構，selector 屬可預期維護成本。
@@ -45,11 +45,10 @@ content script 同時注入主頁面與 `js.stripe.com` 等 iframe。主頁面 f
 ### 模組與介面
 ```
 src/
-  data/cards.js            // export const CARDS = { ecpay:[...], newebpay:[...], app91:[...], stripe:[...] }
+  data/cards.js            // export const CARDS = { ecpay:[...], newebpay:[...], stripe:[...] }
   content/filler.js        // setNativeValue(el,val); fillField(selector,val); dispatchEvents(el)
   adapters/ecpay.js        // { id:'ecpay', detect, selectors, fill }
   adapters/newebpay.js
-  adapters/app91.js
   adapters/stripe.js       // 含 iframe 跨 frame 協調
   adapters/index.js        // ADAPTERS = [...]; pickAdapter()
   content/panel.js         // mountPanel(adapter, cards): Shadow DOM UI
@@ -65,7 +64,6 @@ build.mjs
 
 - [金流測試頁改版使 selector 失效] → adapter 邊界隔離，單檔可改；偵測失敗時面板明確提示而非靜默。
 - [Stripe/TapPay iframe 內部攔截輸入，`insertText` 未必觸發其狀態] → 以原生 setter + `InputEvent('insertText')` 為主、必要時逐字派發 key 事件為備援；spec 標明此為「盡力而為」需實機驗證。
-- [91APP 自有刷卡頁的測試卡與 DOM 未知] → 實作時以實機測試頁與官方測試文件確認；未取得前該 adapter 先以待驗證標記，不杜撰卡號。
 - [Firefox 與 Chrome MV3 差異（background/CSP）] → 本外掛不依賴 background，差異面最小，僅 manifest 的 gecko id 與 service_worker 欄位不同。
 - [content script 注入第三方頁的合規] → 僅作用於金流測試網域、僅填欄位不送出、無資料外傳。
 
@@ -75,5 +73,4 @@ build.mjs
 
 ## Open Questions
 
-- 91APP 自有刷卡頁的實際測試卡號與欄位選擇器，需取得官方測試文件或實機測試頁後補齊（先以 adapter 骨架 + 待驗證標記交付）。
 - 綠界／藍新失敗情境卡的完整涵蓋範圍，以各家官方文件最終清單為準。

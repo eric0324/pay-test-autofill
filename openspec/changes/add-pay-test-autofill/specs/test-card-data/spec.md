@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: 結構化測試卡資料庫
-系統 SHALL 以結構化資料提供四家金流（綠界 ECPay、藍新 NewebPay、91APP、Stripe）的測試卡。每張測試卡 MUST 至少包含：所屬金流（gateway）、顯示名稱（label）、情境分類（category）、卡號（number）、到期月（expMonth）、到期年（expYear）、安全碼（cvc），以及資料來源備註（note）。
+系統 SHALL 以結構化資料提供三家金流（綠界 ECPay、藍新 NewebPay、Stripe）的測試卡。每張測試卡 MUST 至少包含：所屬金流（gateway）、顯示名稱（label）、情境分類（category）、卡號（number）、到期月（expMonth）、到期年（expYear）、安全碼（cvc），以及資料來源備註（note）。
 
 #### Scenario: 取得指定金流的測試卡清單
 - **WHEN** 程式以某金流識別碼（如 `stripe`）查詢測試卡
